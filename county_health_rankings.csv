@@ -1,0 +1,16 @@
+zip,county,state,measure_name,value,rank
+90210,Beverly Hills,CA,Violent crime rate,150.2,15
+90210,Beverly Hills,CA,Unemployment,3.2,5
+90210,Beverly Hills,CA,Children in poverty,8.5,12
+10001,New York,NY,Violent crime rate,280.5,45
+10001,New York,NY,Unemployment,4.8,25
+10001,New York,NY,Children in poverty,18.2,35
+60601,Chicago,IL,Violent crime rate,320.1,55
+60601,Chicago,IL,Unemployment,5.2,30
+60601,Chicago,IL,Children in poverty,22.1,40
+33101,Miami,FL,Violent crime rate,195.8,25
+33101,Miami,FL,Unemployment,3.8,15
+33101,Miami,FL,Children in poverty,15.6,28
+78701,Austin,TX,Violent crime rate,180.3,20
+78701,Austin,TX,Unemployment,3.5,10
+78701,Austin,TX,Children in poverty,12.3,20

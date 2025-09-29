@@ -1,0 +1,1 @@
+https://your-deployed-api-url.vercel.app/county_data

@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/county_data.py": {
+      "runtime": "python3.9"
+    }
+  }
+}
