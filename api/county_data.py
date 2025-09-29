@@ -1,13 +1,7 @@
-"""
-API endpoint for county health data queries
-Deployed on Vercel as a serverless function
-"""
-
+from http.server import BaseHTTPRequestHandler
 import json
 import sqlite3
 import os
-from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
 
 # Valid measure names as specified in requirements
 VALID_MEASURES = [
@@ -27,18 +21,15 @@ VALID_MEASURES = [
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        # Parse the URL path
-        parsed_path = urlparse(self.path)
-        
-        # Check if this is the correct endpoint
-        if parsed_path.path != '/county_data':
-            self.send_response(404)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
-            return
-        
         try:
+            # Check if this is the correct endpoint
+            if self.path != '/county_data':
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Not found"}).encode())
+                return
+            
             # Read the request body
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
@@ -139,8 +130,7 @@ class handler(BaseHTTPRequestHandler):
             conn.row_factory = sqlite3.Row  # Enable column access by name
             cursor = conn.cursor()
             
-            # Sanitize inputs for SQL query (parameterized query prevents SQL injection)
-            # First, get the column names from the table
+            # Get the column names from the table
             cursor.execute("PRAGMA table_info(county_health_rankings)")
             columns = [row[1] for row in cursor.fetchall()]
             
@@ -193,7 +183,7 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({
             "message": "County Health Data API",
-            "endpoint": "/api/county_data",
+            "endpoint": "/county_data",
             "method": "POST",
             "required_fields": ["zip", "measure_name"],
             "valid_measures": VALID_MEASURES
