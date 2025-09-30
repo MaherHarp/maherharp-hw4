@@ -20,19 +20,44 @@ VALID_MEASURES = [
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
+            # Check content type first
+            content_type = self.headers.get('Content-Type', '')
+            if 'application/json' not in content_type:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "bad_request",
+                    "detail": "Only POST with content-type: application/json is supported"
+                }).encode())
+                return
+            
             # Read the request body
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
             
             # Parse JSON data
-            data = json.loads(post_data.decode('utf-8'))
+            try:
+                data = json.loads(post_data.decode('utf-8'))
+            except json.JSONDecodeError:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "bad_request",
+                    "detail": "Invalid JSON format"
+                }).encode())
+                return
             
             # Check for required fields
             if 'zip' not in data or 'measure_name' not in data:
                 self.send_response(400)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Missing required fields: zip and measure_name"}).encode())
+                self.wfile.write(json.dumps({
+                    "error": "bad_request",
+                    "detail": "Missing required fields: zip and measure_name"
+                }).encode())
                 return
             
             zip_code = data['zip']
@@ -43,7 +68,10 @@ class handler(BaseHTTPRequestHandler):
                 self.send_response(400)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Invalid zip code format"}).encode())
+                self.wfile.write(json.dumps({
+                    "error": "bad_request",
+                    "detail": "Invalid zip code format"
+                }).encode())
                 return
             
             # Validate measure name
@@ -51,7 +79,10 @@ class handler(BaseHTTPRequestHandler):
                 self.send_response(404)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Invalid measure name"}).encode())
+                self.wfile.write(json.dumps({
+                    "error": "not_found",
+                    "detail": "Invalid measure name"
+                }).encode())
                 return
             
             # Special case: coffee=teapot -> HTTP 418
@@ -59,7 +90,10 @@ class handler(BaseHTTPRequestHandler):
                 self.send_response(418)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "I'm a teapot"}).encode())
+                self.wfile.write(json.dumps({
+                    "error": "teapot",
+                    "detail": "I'm a teapot"
+                }).encode())
                 return
             
             # Sample data for testing
@@ -100,7 +134,10 @@ class handler(BaseHTTPRequestHandler):
                 self.send_response(404)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "No data found for the given zip and measure"}).encode())
+                self.wfile.write(json.dumps({
+                    "error": "not_found",
+                    "detail": "No data found for the given zip and measure"
+                }).encode())
                 return
             
             # Return successful response
@@ -113,17 +150,37 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
+            self.wfile.write(json.dumps({
+                "error": "internal_server_error",
+                "detail": "Internal server error"
+            }).encode())
     
     def do_GET(self):
-        # Handle GET requests
-        self.send_response(200)
+        # Handle GET requests with the specific error format
+        self.send_response(400)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps({
-            "message": "County Health Data API",
-            "endpoint": "/county_data",
-            "method": "POST",
-            "required_fields": ["zip", "measure_name"],
-            "valid_measures": VALID_MEASURES
+            "error": "bad_request",
+            "detail": "Only POST with content-type: application/json is supported"
+        }).encode())
+    
+    def do_PUT(self):
+        # Handle other HTTP methods with the same error
+        self.send_response(400)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({
+            "error": "bad_request",
+            "detail": "Only POST with content-type: application/json is supported"
+        }).encode())
+    
+    def do_DELETE(self):
+        # Handle other HTTP methods with the same error
+        self.send_response(400)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({
+            "error": "bad_request",
+            "detail": "Only POST with content-type: application/json is supported"
         }).encode())
